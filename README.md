@@ -1,4 +1,4 @@
-# MIMIO_CS
+# MIMO_CS
 
 ### Code structure
     .
