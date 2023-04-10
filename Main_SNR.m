@@ -4,12 +4,12 @@ n_batch = 100; % number of batches
 lambda = 5; % regulation ratio of optimazation problem
 max_iter_ista = 1000; % maximum iterations of ista
 sparsity_level_omp = 100; % maximum iterations of omp
-max_iter_sbl = 50; % maximum iterations of sbl
+max_iter_sbl = 100; % maximum iterations of sbl
 %% variable area
 % how many group of signals we observe
 % num_signals = [5 10 20 30 40];
-for num_signals = 20
-    SNR = [-5 0 5 10 20]; % SNR value in dB
+for num_signals = 12
+    SNR = [-10 -5 0 5 10 20]; % SNR value in dB
     recorder_mean = zeros(4,length(SNR));
     recorder_varn = zeros(4,length(SNR));
     recorder_time = zeros(4,length(SNR));
@@ -35,7 +35,7 @@ for num_signals = 20
             H_est = A_R_bar * H_a_est_full*A_T_bar';
             % insert error into error_list
             error_ista = norm(H_est-H)/norm(H);
-            error_list_ista(i) = error_ista;
+            error_list_ista(i) = error_ista^2;
         end
         tEnd1 = cputime - tStart1;
         % mean
@@ -57,7 +57,7 @@ for num_signals = 20
             H_est = A_R_bar * H_a_est_full*A_T_bar';
             % insert error into error_list
             error_omp = norm(H_est-H)/norm(H);
-            error_list_omp(i) = error_omp;
+            error_list_omp(i) = error_omp^2;
         end
         tEnd2 = cputime - tStart2;
         % mean
@@ -73,13 +73,13 @@ for num_signals = 20
             % generate channel
             [y_bar,H,Q_bar,noise,A_R_bar,A_T_bar,H_vec] = channel_generate(sigma(1,j), num_signals);
             % carry out sbl
-            H_v = SBL(y_bar,Q_bar,sigma(1,j),5e-4,max_iter_sbl);
+            H_v = SBL(y_bar,Q_bar,sigma(1,j),1e-4,max_iter_sbl);
             % calculate H_est
             H_a_est_full = reshape(H_v, [G, G]);
             H_est = A_R_bar * H_a_est_full*A_T_bar';
             % insert error into error_list
             error_sbl = norm(H_est-H)/norm(H);
-            error_list_sbl(i) = error_sbl;
+            error_list_sbl(i) = error_sbl^2;
         end
         tEnd3 = cputime - tStart3;
         % mean
@@ -95,13 +95,13 @@ for num_signals = 20
             % generate channel
             [y_bar,H,Q_bar,noise,A_R_bar,A_T_bar,H_vec] = channel_generate(sigma(1,j), num_signals);
             % carry out sblu
-            H_v = SBLU(y_bar,Q_bar,noise,5e-4,max_iter_sbl);
+            H_v = SBLU(y_bar,Q_bar,noise,1e-4,max_iter_sbl);
             % calculate H_est
             H_a_est_full = reshape(H_v, [G, G]);
             H_est = A_R_bar * H_a_est_full*A_T_bar';
             % insert error into error_list
             error_sblu = norm(H_est-H)/norm(H);
-            error_list_sblu(i) = error_sblu;
+            error_list_sblu(i) = error_sblu^2;
         end
         tEnd4 = cputime - tStart4;
         % mean
@@ -117,7 +117,7 @@ for num_signals = 20
     bar(SNR,10*log10(recorder_time'));
     title(['Mean CPU Time # pilot = ',num2str(num_signals)]);
     xlabel("SNR/dB");
-    ylabel("CPU Time/dB");
+    ylabel("CPU Time/dBs");
     legend('ISTA','OMP','SBL','SBLU');
     saveas(gcf, ['CPUTime',num2str(num_signals),'pilots.png']);
     % plot the normalized mean square error
