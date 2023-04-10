@@ -10,7 +10,7 @@
     ├── README.md              ---instructions
     ├── SBL.m                  ---SBL for complex number
     ├── SBLU.m                 ---SBL U
-    └── fig                     ---figure of results
+    └── fig                    ---figure of results
             ├── CPUTime12pilots.png
             ├── MSE0dB.png
             ├── MSE10dB.png
