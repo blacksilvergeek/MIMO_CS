@@ -6,13 +6,17 @@ function mu = SBLU(Y,A,noise,convergence,tMax)
 Delta = sqrt((noise'*noise)/length(noise));
 gamma0 = ones(width(A),1);
 for i=1:tMax
+    % E-step
     variance = (Delta^(-2).*(A'*A)+diag(1./gamma0))^(-1);
     mean = Delta^(-2).*(variance*A'*Y);
+    % M-step
     gamma = mean.*mean+diag(variance);
+     % check the convergence
     if norm(gamma-gamma0,2)/norm(gamma0,2) < convergence
         break;
     end
     gamma0 = gamma;
 end
+% compute the final mu.
 variance = (Delta^(-2).*(A'*A)+diag(gamma)^(-1))^(-1);
 mu = Delta^(-2).*(variance*A'*Y);
